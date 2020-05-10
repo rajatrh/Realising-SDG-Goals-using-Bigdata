@@ -19,7 +19,6 @@ def parseJSON(content, attach, i):
       else:
         resMap[i][attach + '@' + key] = content[key]
       
-
 # Get Indicators from data (WHO)
 url = "https://ghoapi.azureedge.net/api/Indicator"
 response = requests.request("GET", url)
@@ -40,7 +39,6 @@ for i in range(len(json_parsed['value'])):
   resMap.append({})
   parseJSON(json_parsed['value'][i],'', i)
 resDf = pd.DataFrame(resMap)
-
 
 # Retrieve pollution related datasets from EPA (From 1980 - 2020)
 for poll in ['44201','42401', '42101', '42602', 'HAPS','VOCS', 'NONOxNOy', 'Lead', '88101','88502', '81102', 'SPEC', 'PM10SPEC']:
