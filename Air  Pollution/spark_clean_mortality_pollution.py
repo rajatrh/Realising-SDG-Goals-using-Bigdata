@@ -1,3 +1,13 @@
+"""
+Memebers : Abhiram Kaushik, Ajay Gopal Krishna, Rajesh Prabhakar, Rajat R Hande
+Description: 
+Concepts Used:
+
+Config: DataProc on GCP, Image: 1.4.27-debian9
+        M(1): e2-standard-2 32GB
+        W(3): e2-standard-4 64GB
+"""
+
 from pyspark.sql import SparkSession
 import sys
 import csv
@@ -6,6 +16,7 @@ from itertools import islice
 
 # Pollutant files to be processed
 fileMortality = sys.argv[1]
+
 spark = SparkSession.builder.master("local[*]").getOrCreate()
 sc = spark.sparkContext
 

@@ -1,3 +1,13 @@
+"""
+Memebers : Abhiram Kaushik, Ajay Gopal Krishna, Rajesh Prabhakar, Rajat R Hande
+Description: 
+Concepts Used:
+
+Config: DataProc on GCP, Image: 1.4.27-debian9
+        M(1): e2-standard-2 32GB
+        W(3): e2-standard-4 64GB
+"""
+
 import numpy as np
 import sys
 from pyspark.sql import SparkSession
