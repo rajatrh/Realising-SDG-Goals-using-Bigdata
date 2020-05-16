@@ -1,7 +1,7 @@
 """
 Memebers : Abhiram Kaushik, Ajay Gopal Krishna, Rajesh Prabhakar, Rajat R Hande
 Description: 
-Concepts Used:
+Concepts Used: Spaark, Hadoop, Linear Regression
 
 Config: DataProc on GCP, Image: 1.4.27-debian9
         M(1): e2-standard-2 32GB
