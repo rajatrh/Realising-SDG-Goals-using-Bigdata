@@ -1,7 +1,7 @@
 """
 Memebers : Abhiram Kaushik, Ajay Gopal Krishna, Rajesh Prabhakar, Rajat R Hande
 Description: 
-Concepts Used:
+Concepts Used: Spaark, Hadoop, Linear Regression
 
 Config: DataProc on GCP, Image: 1.4.27-debian9
         M(1): e2-standard-2 32GB
@@ -74,6 +74,7 @@ def evaluate(x):
   return res
 
 def featureExtractionCountyWise(countyData, ignore_col_set = {9,16,20,44,45,31}, yCol=45):
+  # get the useful features related to accident mortality
   county = countyData[0]
   try:
     df_vals = countyData[1]
@@ -85,6 +86,7 @@ def featureExtractionCountyWise(countyData, ignore_col_set = {9,16,20,44,45,31},
     idx_dict = {}
     req_col_length = len(column_val_list[0]) * 0.1
 
+    #Select colums with at least two different values 
     idx_count = 0
     for i, col_vals in enumerate(column_val_list):
       if i in ignore_col_set:
@@ -100,12 +102,13 @@ def featureExtractionCountyWise(countyData, ignore_col_set = {9,16,20,44,45,31},
             idx_dict[idx_count] = i
             idx_count += 1
             break
-    
+ 
     if (x_trans) and len(x_trans[0]) < 10:
       return (county, ([], {}, {}, []))
 
     x_trans = np.asarray(x_trans, dtype = object)
     
+    #For the shorlisted columns apply the KNeighborsClassifier to extract the important features
     x = np.transpose(x_trans)
     y = np.array(list(map(lambda el:[el], column_val_list[yCol])))
     
@@ -123,7 +126,7 @@ def featureExtractionCountyWise(countyData, ignore_col_set = {9,16,20,44,45,31},
 
     cols_idx_set = set(sfs1.subsets_[10]['feature_idx'])
 
-    
+    #get the value counts for each columns
     for i, cols in enumerate(x_trans):
       if i in cols_idx_set:
         feature_set.append((i, Counter(cols)))
@@ -136,8 +139,10 @@ def featureExtractionCountyWise(countyData, ignore_col_set = {9,16,20,44,45,31},
   except:
     return (county, ([], {}, {}, []))
 
+#read the cleaned CSV
 personRDD = sc.textFile(personsMerged).mapPartitionsWithIndex(
   lambda idx, it: islice(it, 1, None) if idx == 0 else it).mapPartitions(lambda x: csv.reader(x))
+
 
 aggPersonRDD = personRDD.map(lambda x: ((x[75]), (x[5], x[6], x[9]))).groupByKey()\
 .mapValues(list).map(lambda x: formNewCols(x))
@@ -145,6 +150,7 @@ aggPersonRDD = personRDD.map(lambda x: ((x[75]), (x[5], x[6], x[9]))).groupByKey
 
 aRDD = sc.textFile(accidentFile).mapPartitionsWithIndex(
 lambda idx, it: islice(it, 1, None) if idx == 0 else it).mapPartitions(lambda x: csv.reader(x))
+
 
 ## Set aside the id (so as to merge)
 accidentRDD = aRDD.map(lambda x: (x[45],evaluate(x[1:len(x)])))
