@@ -1,11 +1,28 @@
 """
 Memebers : Abhiram Kaushik, Ajay Gopal Krishna, Rajesh Prabhakar, Rajat R Hande
-Description: 
-Concepts Used: Spaark, Hadoop, Linear Regression
+
+Description: County wise feature extraction ie, the features with high influence on traffic mortalility is extracted
+             for each county.
+
+Concepts Used (Overall): Spark, Hadoop, Multivariate Linear Regression, Feature Extraction
+                         Hypothesis Testing, Time Series Prediction
+
+Concepts in this file: Feature Extraction, Spark, Hadoop
 
 Config: DataProc on GCP, Image: 1.4.27-debian9
         M(1): e2-standard-2 32GB
         W(3): e2-standard-4 64GB
+
+Sample Output: (accidentsFinal, grouped by county)
+('1-0-3', [[0, 0, 0, 16, 10, 3, 6, 5, 0, 1, 1, 1, 0, 1, 1, 4, 1, 1, 2000, 0.0, '1-0-3', 4, 1, 2, 1, 2, 6, 2, 1, 3, 1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 3, 2, 2, 100362000, 1, 10.0, 0, 1, 0, 0, 0, 1, 1, 0],
+[0, 0, 0, 14, 32, 3, 22, 7, 0, 1, 12, 4, 0, 2, 1, 4, 1, 1, 2000, 0.0, '1-0-3', 4, 1, 2, 1, 1, 5, 1, 4, 3, 1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 3, 2, 2, 102852000, 1, 11.0, 0, 1, 1, 0, 1, 1, 1, 1])
+
+It follows: the schema of the dataset from FARS
+
+Sample Output: (countyFeatures -> Lists the most important features of the given county)
+('1-0-3', [7, 8, 10, 12, 14, 15, 23, 24, 25, 26, 28, 31, 33, 34, 52])
+
+It follows: county, list of features that are most significant in the county
 """
 
 import os
@@ -20,6 +37,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_score
+from collections import Counter
 
 sc = SparkContext('local[*]', 'pyspark tutorial')
 
@@ -27,7 +45,6 @@ personsMerged = sys.argv[1]
 accidentFile = sys.argv[2]
 
 def formNewCols(x):
-  print(x[1])
   personSplit = [0,0,0,0,0,0,0,0]
 
   for p in x[1]:
@@ -74,7 +91,6 @@ def evaluate(x):
   return res
 
 def featureExtractionCountyWise(countyData, ignore_col_set = {9,16,20,44,45,31}, yCol=45):
-  # get the useful features related to accident mortality
   county = countyData[0]
   try:
     df_vals = countyData[1]
@@ -86,7 +102,6 @@ def featureExtractionCountyWise(countyData, ignore_col_set = {9,16,20,44,45,31},
     idx_dict = {}
     req_col_length = len(column_val_list[0]) * 0.1
 
-    #Select colums with at least two different values 
     idx_count = 0
     for i, col_vals in enumerate(column_val_list):
       if i in ignore_col_set:
@@ -96,37 +111,38 @@ def featureExtractionCountyWise(countyData, ignore_col_set = {9,16,20,44,45,31},
         count = 0
         for value in val_count:
           if val_count[value] >= req_col_length:
-            count += 1;
+            count += 1
           if count > 1:
             x_trans.append(list(col_vals))
             idx_dict[idx_count] = i
             idx_count += 1
             break
- 
+    
     if (x_trans) and len(x_trans[0]) < 10:
       return (county, ([], {}, {}, []))
 
     x_trans = np.asarray(x_trans, dtype = object)
     
-    #For the shorlisted columns apply the KNeighborsClassifier to extract the important features
     x = np.transpose(x_trans)
     y = np.array(list(map(lambda el:[el], column_val_list[yCol])))
     
-    knn = KNeighborsClassifier(n_neighbors=1)
+    knn = KNeighborsClassifier(n_neighbors=2)
 
     sfs1 = SFS(knn, 
               k_features=10, 
               forward=True,
               floating=True, 
-              verbose=2,
+              verbose=1,
               scoring='accuracy',
               cv=5)
-
-    sfs1 = sfs1.fit(x, y)
+    
+    x = np.array(x, dtype=np.float64)
+    y = np.array(y, dtype=np.float64)
+    
+    sfs1 = sfs1.fit(x, y.ravel())
 
     cols_idx_set = set(sfs1.subsets_[10]['feature_idx'])
 
-    #get the value counts for each columns
     for i, cols in enumerate(x_trans):
       if i in cols_idx_set:
         feature_set.append((i, Counter(cols)))
@@ -143,26 +159,22 @@ def featureExtractionCountyWise(countyData, ignore_col_set = {9,16,20,44,45,31},
 personRDD = sc.textFile(personsMerged).mapPartitionsWithIndex(
   lambda idx, it: islice(it, 1, None) if idx == 0 else it).mapPartitions(lambda x: csv.reader(x))
 
-
 aggPersonRDD = personRDD.map(lambda x: ((x[75]), (x[5], x[6], x[9]))).groupByKey()\
 .mapValues(list).map(lambda x: formNewCols(x))
 
-
 aRDD = sc.textFile(accidentFile).mapPartitionsWithIndex(
 lambda idx, it: islice(it, 1, None) if idx == 0 else it).mapPartitions(lambda x: csv.reader(x))
-
 
 ## Set aside the id (so as to merge)
 accidentRDD = aRDD.map(lambda x: (x[45],evaluate(x[1:len(x)])))
 
 merged_accidentsRDD = accidentRDD.join(aggPersonRDD).map(lambda x:  x[1][0] + x[1][1])
 
-merged_accidentsRDD.saveAsTextFile('accidentsFinal')
+# merged_accidentsRDD.saveAsTextFile('accidentsFinal')
 
 ## Group over location (Location - col 21)
 groupbylocRDD = merged_accidentsRDD.map(lambda x: (x[20], x)).groupByKey().mapValues(list)
 
-from collections import Counter
 
 groupbylocRDD.map(lambda x: featureExtractionCountyWise(x)).saveAsTextFile('countyFeatures')
 

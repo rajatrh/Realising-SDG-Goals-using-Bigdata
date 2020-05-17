@@ -1,11 +1,27 @@
 """
 Memebers : Abhiram Kaushik, Ajay Gopal Krishna, Rajesh Prabhakar, Rajat R Hande
-Description: 
-Concepts Used:
+
+Description: Obtain the pollutant concentration per year and county based on certain condtions.
+
+Concepts Used (Overall): Spark, Hadoop, Multivariate Linear Regression, Feature Extraction
+                         Hypothesis Testing, Time Series Prediction
+
+Concepts in this file: Data processing - Data Cleaning, Spark, Hadoop
 
 Config: DataProc on GCP, Image: 1.4.27-debian9
         M(1): e2-standard-2 32GB
         W(3): e2-standard-4 64GB
+
+Sample Output (Per pollutant): (In overallresult - line number 74)
+
+01073,1980-01-03,76.5
+01073,1980-01-10,16.0
+01073,1980-03-20,16.5
+01073,1980-03-27,34.5
+01073,1980-03-28,24.0
+01073,1980-03-30,20.0
+
+It follows ->  CountyId, Date, Pollutant Concentration
 """
 
 from pyspark.sql import SparkSession
