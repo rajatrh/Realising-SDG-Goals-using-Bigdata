@@ -1,11 +1,28 @@
 """
 Memebers : Abhiram Kaushik, Ajay Gopal Krishna, Rajesh Prabhakar, Rajat R Hande
-Description: 
-Concepts Used: Spaark, Hadoop, Linear Regression
+
+Description: County wise feature extraction ie, the features with high influence on traffic mortalility is extracted
+             for each county.
+
+Concepts Used (Overall): Spark, Hadoop, Multivariate Linear Regression, Feature Extraction
+                         Hypothesis Testing, Time Series Prediction
+
+Concepts in this file: Feature Extraction, Spark, Hadoop
 
 Config: DataProc on GCP, Image: 1.4.27-debian9
         M(1): e2-standard-2 32GB
         W(3): e2-standard-4 64GB
+
+Sample Output: (accidentsFinal, grouped by county)
+('1-0-3', [[0, 0, 0, 16, 10, 3, 6, 5, 0, 1, 1, 1, 0, 1, 1, 4, 1, 1, 2000, 0.0, '1-0-3', 4, 1, 2, 1, 2, 6, 2, 1, 3, 1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 3, 2, 2, 100362000, 1, 10.0, 0, 1, 0, 0, 0, 1, 1, 0],
+[0, 0, 0, 14, 32, 3, 22, 7, 0, 1, 12, 4, 0, 2, 1, 4, 1, 1, 2000, 0.0, '1-0-3', 4, 1, 2, 1, 1, 5, 1, 4, 3, 1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 3, 2, 2, 102852000, 1, 11.0, 0, 1, 1, 0, 1, 1, 1, 1])
+
+It follows: the schema of the dataset from FARS
+
+Sample Output: (countyFeatures -> Lists the most important features of the given county)
+('1-0-3', [7, 8, 10, 12, 14, 15, 23, 24, 25, 26, 28, 31, 33, 34, 52])
+
+It follows: county, list of features that are most significant in the county
 """
 
 import os

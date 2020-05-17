@@ -1,7 +1,13 @@
 """
 Memebers : Abhiram Kaushik, Ajay Gopal Krishna, Rajesh Prabhakar, Rajat R Hande
-Description: 
-Concepts Used:
+
+Description: Perform Single Variable Linear Regression to find the correlation
+             between pollutants and mortality rate.
+
+Concepts Used (Overall): Spark, Hadoop, Multivariate Linear Regression, Feature Extraction
+                         Hypothesis Testing, Time Series Prediction
+
+Concepts in this file: Linear Regression, Spark, Hadoop
 
 Config: DataProc on GCP, Image: 1.4.27-debian9
         M(1): e2-standard-2 32GB
