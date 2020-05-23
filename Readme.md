@@ -1,4 +1,4 @@
-####Introduction 
+#### Introduction 
 
 The main goal of the project is to analyse the existing datasets and find patterns which identify the factors contributing to deaths due to Air pollution and Traffic accidents in the US and propose ideas to achieve SDG-3 Goal.
 
@@ -6,7 +6,7 @@ The project aligns with the SDG 3 (by WHO) which aims to ensure healthy lives an
 - By 2030, halve the number of global deaths and injuries from road traffic accidents.
 - By 2030, substantially reduce the number of deaths and illnesses from hazardous chemicals and air, water and soil pollution and contamination.
 
-####Data Used
+#### Data Used
 
 - Pollution dataset: EPA - 1.2 GB
 - Fatal traffic accidents: FARS -  3.83 GB
@@ -14,7 +14,7 @@ The project aligns with the SDG 3 (by WHO) which aims to ensure healthy lives an
 - Chronic Respiratory Diseases Mortality Data: GHDx - 700 MB
 - Mortality dataset: CDC - 4 GB
 
-####Methods
+#### Methods
 
 The below-described methods are performed on Google Cloud Platform. We have used a standard cluster with 1 Master (e2-standard, 2 cores, 32GB) node and 3 Worker nodes (e2-standard, 4 cores, 64GB) which primarily runs HDFS and Spark on Yarn in cluster mode.
 
@@ -26,7 +26,7 @@ The below-described methods are performed on Google Cloud Platform. We have used
 
 ![image](https://user-images.githubusercontent.com/17957548/82724919-6703df80-9ca7-11ea-9245-3c989506ea29.png)
 
-####Some Results
+#### Some Results
 
 
 Air pollutants vs Mortality rates for San Francisco county: 
